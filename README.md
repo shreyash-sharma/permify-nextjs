@@ -1,22 +1,34 @@
 # permify-nextjs
 
-Hybrid Permify context for robust permissions in Next.js app directory projects
+Hybrid client-side permission context for robust and flexible integration of [Permify](https://github.com/Permify/permify) in **Next.js App Directory** projects.
 
-## Why?
-- Ensures reliable context propagation for permissions in Next.js app directory (where some libraries may fail)
-- Supports `.disabled` logic for entity/component permissions
-- Easy to integrate and extend
+## Why this library?
+
+* React context from `@permify/react-role` can break in Next.js App Router due to server/client boundaries and nested layouts.
+* This package avoids those issues with a custom client-only context implementation.
+* It supports additional logic like `.disabled` permissions out of the box.
+
+## Features
+
+* Works in Next.js App Directory with reliable context propagation.
+* Supports `.disabled` and `.disable` permission suffixes.
+* Fast: fetches permissions once and reads from memory.
+* Simple integration into any existing auth setup.
+
+---
 
 ## Installation
 
 ```
-# Local package (in a monorepo or local project)
-# Or publish to npm and use: npm install permify-nextjs
+npm install permify-nextjs
+# or link locally in a monorepo
 ```
+
+---
 
 ## Usage
 
-### 1. Wrap your app in the provider
+### 1. Wrap your App with the Provider
 
 ```jsx
 import { PermissionsProvider } from 'permify-nextjs';
@@ -30,18 +42,36 @@ export default function RootLayout({ children }) {
 }
 ```
 
-### 2. Use PermifyUserSync to fetch and set permissions
+### 2. Sync permissions using `PermifyUserSync`
 
 ```jsx
 import { PermifyUserSync } from 'permify-nextjs';
 import { useAuth } from '@/hooks/useAuth';
 import { initializePermissions } from '@/lib/permifyClient';
 
-// Place this inside your provider tree after auth/graph context is available
+// Place inside the tree once auth context is available
 <PermifyUserSync useAuth={useAuth} initializePermissions={initializePermissions} />
 ```
 
-### 3. Use EntityHasAccess for permission checks
+Your `initializePermissions(userId)` function should return:
+
+```js
+{
+  user: {
+    id: "user@example.com",
+    roles: ["admin"],
+    allowedEntities: {
+      access: [
+        { id: "sidebar.logout" },
+        { id: "dashboard" },
+        { id: "admin-panel.disabled" }
+      ]
+    }
+  }
+}
+```
+
+### 3. Render conditionally with `EntityHasAccess`
 
 ```jsx
 import { EntityHasAccess } from 'permify-nextjs';
@@ -51,33 +81,48 @@ import { EntityHasAccess } from 'permify-nextjs';
 </EntityHasAccess>
 ```
 
-- If the permissions array contains `sidebar.logout.disabled`, the button will be visually disabled.
-- If only `sidebar.logout` is present, the button is enabled.
-- If neither, the button is hidden.
+### Behavior:
 
-### 4. Custom Hooks
+* `sidebar.logout` → renders as normal
+* `sidebar.logout.disabled` or `.disable` → renders as disabled (with visual opacity)
+* neither → hides or renders fallback
 
-You can use `usePermissions()` to access the current user/permissions anywhere in your app:
+### 4. Access context directly
 
-```js
+```jsx
 import { usePermissions } from 'permify-nextjs';
+
 const { user } = usePermissions();
 ```
 
-## .disabled Support
-- If the permissions array contains `component_id.disabled` or `component_id.disable`, the child will be rendered with `disabled={true}` and visually disabled styling.
-- Works for both function and element children.
+---
 
-## API
-- `PermissionsProvider`: Context provider for permissions
-- `usePermissions`: Hook to access user/permissions
-- `PermifyUserSync`: Fetches and sets permissions (inject your own `useAuth` and `initializePermissions`)
-- `EntityHasAccess`: Checks permissions and renders/disabled/hides children
+## API Reference
 
-## Example Permissions Array
-```js
-["sidebar.logout", "sidebar.userinfo.disabled", ...]
+| Component / Hook      | Description                                            |
+| --------------------- | ------------------------------------------------------ |
+| `PermissionsProvider` | Global context wrapper for user and permissions        |
+| `usePermissions()`    | React hook to access `{ user, setUser }`               |
+| `PermifyUserSync`     | Component to fetch and inject permissions into context |
+| `EntityHasAccess`     | Conditional renderer that supports `.disabled` logic   |
+
+---
+
+## Example Permission Array
+
+```json
+[
+  "dashboard",
+  "sidebar.logout",
+  "sidebar.logout.disabled",
+  "admin-panel"
+]
 ```
+NOTE: Any ID not avaailable in the array will be hidden by default.
+---
 
 ## License
-MIT 
+
+MIT
+
+---
