@@ -1,0 +1,13 @@
+{
+    "name": "permify-nextjs",
+    "version": "1.0.0",
+    "main": "src/index.js",
+    "license": "MIT",
+    "description": "Simple, flat-permissions-based access control for Next.js apps. Reliable alternative to Permify HasAccess for the App Directory.",
+    "peerDependencies": {
+      "react": ">=18.0.0",
+      "next": ">=13.0.0"
+    },
+    "keywords": ["permify", "nextjs", "permissions", "rbac", "matter"]
+}
+  
