@@ -13,6 +13,7 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var STORAGE_KEY = 'permify_user_data';
 function PermifyUserSync(_ref) {
   var useAuth = _ref.useAuth,
     initializePermissions = _ref.initializePermissions;
@@ -23,16 +24,31 @@ function PermifyUserSync(_ref) {
   (0, _react.useEffect)(function () {
     var userid = (userInfo === null || userInfo === void 0 ? void 0 : userInfo.userPrincipalName) || (userInfo === null || userInfo === void 0 ? void 0 : userInfo.mail);
     if (userid) {
+      // Check if we have cached permissions
+      var cachedData = localStorage.getItem(STORAGE_KEY);
+      var cachedUser = cachedData ? JSON.parse(cachedData) : null;
+
+      // If we have cached data and it's for the same user, use it temporarily
+      if (cachedUser && cachedUser.userPrincipalName === userid) {
+        setUser(cachedUser);
+      }
+
+      // Always fetch fresh permissions
       initializePermissions(userid).then(function (data) {
         var _data$user;
-        setUser(_objectSpread(_objectSpread({}, userInfo), {}, {
+        var newUserData = _objectSpread(_objectSpread({}, userInfo), {}, {
           permissions: ((_data$user = data.user) === null || _data$user === void 0 || (_data$user = _data$user.allowedEntities) === null || _data$user === void 0 ? void 0 : _data$user.access) || []
-        }));
+        });
+        setUser(newUserData);
       })["catch"](function (error) {
+        console.error('Failed to fetch permissions:', error);
         setUser(_objectSpread(_objectSpread({}, userInfo), {}, {
           permissions: []
         }));
       });
+    } else {
+      // Clear user data if no user ID is available
+      setUser(undefined);
     }
   }, [userInfo, setUser, initializePermissions]);
   return null;

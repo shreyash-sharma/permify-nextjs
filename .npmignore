@@ -3,4 +3,5 @@
 !index.js
 *.jsx
 *.js
-!dist/*.js 
+!dist/*.js
+node_modules/ 

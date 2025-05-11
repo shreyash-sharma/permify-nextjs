@@ -102,9 +102,30 @@ const { user } = usePermissions();
 | Component / Hook      | Description                                            |
 | --------------------- | ------------------------------------------------------ |
 | `PermissionsProvider` | Global context wrapper for user and permissions        |
-| `usePermissions()`    | React hook to access `{ user, setUser }`               |
+| `usePermissions()`    | React hook to access `{ user, setUser, clearPermissions }` |
 | `PermifyUserSync`     | Component to fetch and inject permissions into context |
 | `EntityHasAccess`     | Conditional renderer that supports `.disabled` logic   |
+
+---
+
+## Clearing Permissions
+
+You can clear the permissions from both context and localStorage using the `clearPermissions` function:
+
+```jsx
+import { usePermissions } from 'permify-nextjs';
+
+function LogoutButton() {
+  const { clearPermissions } = usePermissions();
+  
+  const handleLogout = () => {
+    clearPermissions(); // Clears both context and localStorage
+    // ... your logout logic
+  };
+
+  return <button onClick={handleLogout}>Logout</button>;
+}
+```
 
 ---
 
