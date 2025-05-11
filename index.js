@@ -1,3 +1,3 @@
-export { default as EntityHasAccess } from './EntityHasAccess';
-export { PermissionsProvider, usePermissions } from './PermissionsContext';
-export { default as PermifyUserSync } from './PermifyUserSync'; 
+export { default as EntityHasAccess } from './dist/EntityHasAccess';
+export { PermissionsProvider, usePermissions } from './dist/PermissionsContext';
+export { default as PermifyUserSync } from './dist/PermifyUserSync';
