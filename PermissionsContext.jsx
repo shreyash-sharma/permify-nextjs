@@ -5,6 +5,7 @@ const PermissionsContext = createContext();
 
 export function PermissionsProvider({ children }) {
   const [user, setUser] = useState(undefined); // undefined = loading, null = no user
+
   return (
     <PermissionsContext.Provider value={{ user, setUser }}>
       {children}

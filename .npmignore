@@ -1,0 +1,6 @@
+# Ignore everything except dist and index.js
+!dist/
+!index.js
+*.jsx
+*.js
+!dist/*.js 
